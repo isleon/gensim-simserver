@@ -25,7 +25,7 @@ class SimIndex <gensim.utils.SaveLoad> {
     +save (fname)
     +close ()
     +terminate ()
-    --
+    ..
     +keys ()
     +index_documents (fresh_docs, model)
     +delete (docids)
@@ -34,7 +34,7 @@ class SimIndex <gensim.utils.SaveLoad> {
     +sims_by_vec (vec, normalize=None)
     +merge (other)
     ~sims2scores (sims, eps=1e-7)
-    ..
+    --
     #__str__ ()
     #__len__ ()
     #__contains__ (docid)
