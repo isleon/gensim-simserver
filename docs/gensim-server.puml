@@ -1,7 +1,7 @@
 @startuml
 
 'skinparam monochrome true
-'skinparam classBackgroundColor White
+skinparam classBackgroundColor White
 skinparam classArrowColor Black
 skinparam classBorderColor Black
 skinparam stereotypeCBackgroundColor Gray
@@ -9,6 +9,15 @@ skinparam stereotypeCBackgroundColor Gray
 hide circle
 
 class SimIndex <gensim.utils.SaveLoad> {
+    -fname : string
+    -shardsize : int
+    -topsims = int
+    -id2pos : dict
+    -pos2id : dict
+    -id2sims : SqliteDict
+    -qindex : gensim.similarities.Similarity
+    -length : int
+    --
     +__init__ (fname, num_features, 
         \t shardsize=SHARD_SIZE, topsims=TOP_SIMS)
     --
@@ -16,14 +25,15 @@ class SimIndex <gensim.utils.SaveLoad> {
     +save (fname)
     +close ()
     +terminate ()
+    --
+    +keys ()
     +index_documents (fresh_docs, model)
     +delete (docids)
-    ~sims2scores (sims, eps=1e-7)
     +vec_by_id (docid)
     +sims_by_id (docid)
     +sims_by_vec (vec, normalize=None)
     +merge (other)
-    +keys ()
+    ~sims2scores (sims, eps=1e-7)
     ..
     #__len__ ()
     #__contains__ (docid)
@@ -51,6 +61,12 @@ class SimModel <gensim.utils.SaveLoad> {
 }
 
 class SimServer {
+    -model : SimModel
+    -fresh_index : SimIndex
+    -opt_index : SimIndex
+    -payload : SqliteDict
+    -fresh_docs : SqliteDict
+    --
     +__init__ (basename, use_locks=False)
     --
     +train (corpus=None, method='auto', 
@@ -59,13 +75,13 @@ class SimServer {
     +find_similar (doc, min_score=0.0, 
         \t max_results=100)
     ..
+    +keys ()
+    +status ()
     +optimize ()
     +drop_index (keep_model=True)
     +delete (docids)
     +vec_by_id (docid)
     +get_tfidf (*args, **kwargs)
-    +status ()
-    +keys ()
     +memdebug ()
     +close ()
     ..
@@ -93,13 +109,13 @@ class SessionServer <gensim.utils.SaveLoad> {
     +index (*args, **kwargs)
     +find_similar (*args, **kwargs)
     ..
+    +keys ()
+    +status ()
     +optimize ()
     +drop_index (keep_model=True)
-    +keys ()
     +delete (docids)
     +write_istable ()
     +get_tfidf (*args, **kwargs)
-    +status ()
     +debug_model ()
     ..
     +commit ()
