@@ -27,14 +27,9 @@ from __future__ import with_statement
 
 import os
 import logging
-import threading
-import shutil
-
 import numpy
-
 import gensim
 from sqlitedict import SqliteDict # needs sqlitedict: run "sudo easy_install sqlitedict"
-
 
 logger = logging.getLogger('gensim.similarities.simserver')
 
@@ -43,6 +38,20 @@ TOP_SIMS = 100 # when precomputing similarities, only consider this many "most s
 SHARD_SIZE = 65536 # spill index shards to disk in SHARD_SIZE-ed chunks of documents
 DEFAULT_NUM_TOPICS = 400 # use this many topics for topic models unless user specified a value
 JOURNAL_MODE = 'OFF' # don't keep journals in sqlite dbs
+
+
+def merge_sims(oldsims, newsims, clip=None):
+    """Merge two precomputed similarity lists, truncating the result to `clip` most similar items."""
+    if oldsims is None:
+        result = newsims or []
+    elif newsims is None:
+        result = oldsims
+    else:
+        result = sorted(oldsims + newsims, key=lambda item: -item[1])
+    if clip is not None:
+        result = result[:clip]
+    return result
+
 
 class SimIndex(gensim.utils.SaveLoad):
     """
@@ -70,7 +79,6 @@ class SimIndex(gensim.utils.SaveLoad):
         super(SimIndex, self).save(fname)
         self.id2sims = tmp
 
-
     @staticmethod
     def load(fname):
         result = gensim.utils.SaveLoad.load(fname)
@@ -78,7 +86,6 @@ class SimIndex(gensim.utils.SaveLoad):
         result.check_moved()
         result.id2sims = SqliteDict(fname + '.id2sims', journal_mode=JOURNAL_MODE)
         return result
-
 
     def check_moved(self):
         output_prefix = self.fname + '.idx'
@@ -99,7 +106,6 @@ class SimIndex(gensim.utils.SaveLoad):
             del self.qindex
         except:
             pass
-
 
     def terminate(self):
         """Delete all files created by this index, invalidating `self`. Use with care."""
@@ -134,7 +140,6 @@ class SimIndex(gensim.utils.SaveLoad):
         self.qindex.save()
         self.update_ids(docids)
 
-
     def update_ids(self, docids):
         """Update id->pos mapping with new document ids."""
         logger.info("updating %i id mappings" % len(docids))
@@ -153,12 +158,10 @@ class SimIndex(gensim.utils.SaveLoad):
         self.id2sims.sync()
         self.update_mappings()
 
-
     def update_mappings(self):
         """Synchronize id<->position mappings."""
         self.pos2id = dict((v, k) for k, v in self.id2pos.iteritems())
         assert len(self.pos2id) == len(self.id2pos), "duplicate ids or positions detected"
-
 
     def delete(self, docids):
         """Delete documents (specified by their ids) from the index."""
@@ -175,7 +178,6 @@ class SimIndex(gensim.utils.SaveLoad):
         if deleted:
             logger.info("deleted %i documents from %s" % (deleted, self))
         self.update_mappings()
-
 
     def sims2scores(self, sims, eps=1e-7):
         """Convert raw similarity vector to a list of (docid, similarity) results."""
@@ -197,12 +199,10 @@ class SimIndex(gensim.utils.SaveLoad):
                         break
         return result
 
-
     def vec_by_id(self, docid):
         """Return indexed vector corresponding to document `docid`."""
         pos = self.id2pos[docid]
         return self.qindex.vector_by_id(pos)
-
 
     def sims_by_id(self, docid):
         """Find the most similar documents to the (already indexed) document with `docid`."""
