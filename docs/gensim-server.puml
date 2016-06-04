@@ -35,9 +35,9 @@ class SimIndex <gensim.utils.SaveLoad> {
     +merge (other)
     ~sims2scores (sims, eps=1e-7)
     ..
+    #__str__ ()
     #__len__ ()
     #__contains__ (docid)
-    #__str__ ()
     --
     -check_moved ()
     -update_ids (docids)
@@ -87,8 +87,8 @@ class SimServer {
     ..
     #__str__ ()
     #__len__ ()
-    #__contains__ (docid)
     #__del__ ()
+    #__contains__ (docid)
     --
     -is_locked ()
     -location (name)
