@@ -37,11 +37,11 @@ class SimModel {
     +get_tfidf(doc)
     +close()
     #__str__()
-}
 
-class IterableCorpus {
-    #__iter__()
-    #__len__()
+'class IterableCorpus {
+'    #__iter__()
+'    #__len__()
+'}
 }
 
 class SimServer {
@@ -97,6 +97,10 @@ class SessionServer {
     #__len__()
     #__del__()
 }
+
+SessionServer -r-> SimServer
+SimServer -r-> SimIndex
+SimServer -d-> SimModel
 
 'SimIndex -u-|> gensim.utils.SaveLoad
 'SimModel -r-|> gensim.utils.SaveLoad
