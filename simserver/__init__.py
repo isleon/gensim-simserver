@@ -3,7 +3,8 @@ Package containing a document similarity server, an extension of gensim.
 """
 
 # for IPython tab-completion
-from simserver import SessionServer, SimServer
+from simserver import SimServer
+from sessionserver import SessionServer
 
 
 try:
@@ -13,6 +14,7 @@ except:
 
 
 import logging
+
 
 class NullHandler(logging.Handler):
     """For python versions <= 2.6; same as `logging.NullHandler` in 2.7."""
