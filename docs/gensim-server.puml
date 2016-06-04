@@ -1,0 +1,105 @@
+@startuml
+
+'skinparam monochrome true
+'skinparam classBackgroundColor White
+skinparam classArrowColor Black
+skinparam classBorderColor Black
+skinparam stereotypeCBackgroundColor Gray
+'hide members
+hide circle
+
+class SimIndex {
+    +__init__(fname, num_features, shardsize=SHARD_SIZE, topsims=TOP_SIMS)
+    +save(fname)
+    +load(fname)
+    +check_moved()
+    +close()
+    +terminate()
+    +index_documents(fresh_docs, model)
+    +update_ids(docids)
+    +update_mappings()
+    +delete(docids)
+    +sims2scores(sims, eps=1e-7)
+    +vec_by_id(docid)
+    +sims_by_id(docid)
+    +sims_by_vec(vec, normalize=None)
+    +merge(other)
+    +keys()
+    #__len__()
+    #__contains__(docid)
+    #__str__()
+}
+
+class SimModel {
+    +__init__(fresh_docs, dictionary=None, method=None, params=None)
+    +doc2vec(doc)
+    +docs2vecs(docs)
+    +get_tfidf(doc)
+    +close()
+    #__str__()
+}
+
+class IterableCorpus {
+    #__iter__()
+    #__len__()
+}
+
+class SimServer {
+    +__init__(basename, use_locks=False)
+    +location(name)
+    +flush(save_index=False, save_model=False, clear_buffer=False)
+    +close()
+    +buffer(documents)
+    +train(corpus=None, method='auto', clear_buffer=True, params=None)
+    +index(corpus=None, clear_buffer=True)
+    +optimize()
+    +drop_index(keep_model=True)
+    +delete(docids)
+    +is_locked()
+    +vec_by_id(docid)
+    +find_similar(doc, min_score=0.0, max_results=100)
+    +get_tfidf(*args, **kwargs)
+    +status()
+    +keys()
+    +memdebug()
+    #__str__()
+    #__len__()
+    #__contains__(docid)
+    #__del__()
+}
+
+class SessionServer {
+    +__init__(basedir, autosession=True, use_locks=True)
+    +location(name)
+    +loc_stable()
+    +loc_session()
+    #__contains__(docid)
+    +keys()
+    +check_session()
+    +open_session()
+    +buffer(*args, **kwargs)
+    +index(*args, **kwargs)
+    +train(*args, **kwargs)
+    +drop_index(keep_model=True)
+    +delete(docids)
+    +optimize()
+    +write_istable()
+    +commit()
+    +rollback()
+    +set_autosession(value=None)
+    +close()
+    +terminate()
+    +find_similar(*args, **kwargs)
+    +get_tfidf(*args, **kwargs)
+    +debug_model()
+    +status()
+    #__str__()
+    #__len__()
+    #__del__()
+}
+
+'SimIndex -u-|> gensim.utils.SaveLoad
+'SimModel -r-|> gensim.utils.SaveLoad
+'SessionServer -u-|> gensim.utils.SaveLoad
+
+@enduml
