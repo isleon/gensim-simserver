@@ -45,6 +45,8 @@ class SimIndex <gensim.utils.SaveLoad> {
 }
 
 class SimModel <gensim.utils.SaveLoad> {
+    -dictionary : gensim.corpora.Dictionary
+    --
     +__init__ (fresh_docs, dictionary=None, 
         \t method=None, params=None)
     --
@@ -59,6 +61,34 @@ class SimModel <gensim.utils.SaveLoad> {
 '    #__len__ ()
 '}
 }
+
+class Dictionary as "gensim.corpora.Dictionary" <gensim.utils.SaveLoad> {
+    +__init__(documents=None, prune_at=2000000):
+    --
+    +iteritems():
+    +itervalues():
+    +keys():
+    +from_documents(documents):
+    +add_documents(documents, prune_at=2000000):
+    +doc2bow(document, allow_update=False, 
+        \t return_missing=False):
+    +filter_extremes(no_below=5, no_above=0.5, 
+        \t keep_n=100000):
+    +filter_n_most_frequent(remove_n):
+    +filter_tokens(bad_ids=None, good_ids=None):
+    +compactify():
+    +save_as_text(fname, sort_by_word=True):
+    +merge_with(other):
+    +load_from_text(fname):
+    +from_corpus(corpus, id2word=None):
+    --
+    #__len__():
+    #__str__():
+    #__iter__():
+    #__getitem__(tokenid):
+}
+
+SimModel -r-> Dictionary
 
 class SimServer {
     -model : SimModel
@@ -84,7 +114,7 @@ class SimServer {
     +get_tfidf (*args, **kwargs)
     +memdebug ()
     +close ()
-    ..
+    --
     #__str__ ()
     #__len__ ()
     #__del__ ()
@@ -126,7 +156,7 @@ class SessionServer <gensim.utils.SaveLoad> {
     ..
     ~check_session ()
     ~open_session ()
-    ..
+    --
     #__str__ ()
     #__len__ ()
     #__del__ ()
