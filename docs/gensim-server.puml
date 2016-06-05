@@ -45,7 +45,13 @@ class SimIndex <gensim.utils.SaveLoad> {
 }
 
 class SimModel <gensim.utils.SaveLoad> {
+    -method : ["lsi", "lda", "lda_tfidf", "logentropy"]
     -dictionary : gensim.corpora.Dictionary
+    -tfidf : gensim.models.TfidfModel
+    -lsi : gensim.models.LsiModel
+    -lda : gensim.models.LdaModel
+    -logent : gensim.models.LogEntropyModel
+    -num_features : int
     --
     +__init__ (fresh_docs, dictionary=None, 
         \t method=None, params=None)
@@ -63,29 +69,31 @@ class SimModel <gensim.utils.SaveLoad> {
 }
 
 class Dictionary as "gensim.corpora.Dictionary" <gensim.utils.SaveLoad> {
-    +__init__(documents=None, prune_at=2000000):
+    +__init__(documents=None, prune_at=2000000)
     --
-    +iteritems():
-    +itervalues():
-    +keys():
-    +from_documents(documents):
-    +add_documents(documents, prune_at=2000000):
+    +{static} load_from_text(fname)
+    +{static} from_documents(documents)
+    +{static} from_corpus(corpus, id2word=None)
+    ..
+    +add_documents(documents, prune_at=2000000)
     +doc2bow(document, allow_update=False, 
-        \t return_missing=False):
+        \t return_missing=False)
     +filter_extremes(no_below=5, no_above=0.5, 
-        \t keep_n=100000):
-    +filter_n_most_frequent(remove_n):
-    +filter_tokens(bad_ids=None, good_ids=None):
-    +compactify():
-    +save_as_text(fname, sort_by_word=True):
-    +merge_with(other):
-    +load_from_text(fname):
-    +from_corpus(corpus, id2word=None):
+        \t keep_n=100000)
+    +filter_n_most_frequent(remove_n)
+    +filter_tokens(bad_ids=None, good_ids=None)
+    +compactify()
+    +save_as_text(fname, sort_by_word=True)
+    +merge_with(other)
+    ..
+    +keys()
+    +iteritems()
+    +itervalues()
     --
-    #__len__():
-    #__str__():
-    #__iter__():
-    #__getitem__(tokenid):
+    #__len__()
+    #__str__()
+    #__iter__()
+    #__getitem__(tokenid)
 }
 
 SimModel -r-> Dictionary
