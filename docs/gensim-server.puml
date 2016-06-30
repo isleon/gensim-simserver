@@ -152,8 +152,7 @@ class SessionServer <gensim.utils.SaveLoad> {
     +loc_stable
     +loc_session
     --
-    +__init__ (basedir, autosession=True, 
-        \t use_locks=True)
+    +__init__ (basedir, autosession=True, use_locks=True)
     --
     +train (*args, **kwargs)
     +index (*args, **kwargs)
@@ -217,14 +216,24 @@ class LsiModel as "gensim.models.LsiModel" {
     #__getitem__(bow, scaled=Flase, chunksize=512)
 }
 
-SessionServer --r-> SimServer
-SimServer --r-> SimIndex
+class Projection as "gensim.models.Projection" {
+    +__init__(m, k, docs=None, use_svdlibc=False, 
+        \t power_iters=P2_EXTRA_ITERS, 
+        \t extra_dims=P2_EXTRA_DIMS)
+    --
+    +empty_like()
+    +merge(other, decay=1.0)
+}
+
+SessionServer -r-> SimServer
+SimServer -r-> SimIndex
 SimServer -d-> SimModel
-SimModel -r-> Dictionary
+SimModel -l-> Dictionary
 SimModel -d-> TfidfModel
-SimModel -l-> LsiModel
+SimModel -r-> LsiModel
 'SimModel -l-> LdaModel
 'SimModel -l-> LogEntropyModel
+LsiModel -d-> Projection
 
 'SimIndex -u-|> gensim.utils.SaveLoad
 'SimModel -r-|> gensim.utils.SaveLoad
