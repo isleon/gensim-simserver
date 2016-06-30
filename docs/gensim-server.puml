@@ -9,6 +9,10 @@ skinparam stereotypeCBackgroundColor Gray
 hide circle
 
 class SimIndex <gensim.utils.SaveLoad> {
+    +{static} TOP_SIMS = 100
+    +{static} SHARD_SIZE = 65536
+    +{static} JOURNAL_MODE = 'OFF'
+    ..
     -fname : string
     -shardsize : int
     -topsims = int
@@ -69,6 +73,14 @@ class SimModel <gensim.utils.SaveLoad> {
 }
 
 class Dictionary as "gensim.corpora.Dictionary" <gensim.utils.SaveLoad> {
+    -token2id = {}
+    -id2token = {}
+    -dfs = {}
+    ..
+    -num_docs = 0
+    -num_pos = 0
+    -num_nnz = 0
+    --
     +__init__(documents=None, prune_at=2000000)
     --
     +{static} load_from_text(fname)
@@ -87,8 +99,8 @@ class Dictionary as "gensim.corpora.Dictionary" <gensim.utils.SaveLoad> {
     +merge_with(other)
     ..
     +keys()
-    +iteritems()
-    +itervalues()
+    +values()
+    +items()
     --
     #__len__()
     #__str__()
@@ -96,9 +108,9 @@ class Dictionary as "gensim.corpora.Dictionary" <gensim.utils.SaveLoad> {
     #__getitem__(tokenid)
 }
 
-SimModel -r-> Dictionary
-
 class SimServer {
+    +{static} JOURNAL_MODE = 'OFF'
+    ..
     -model : SimModel
     -fresh_index : SimIndex
     -opt_index : SimIndex
@@ -174,9 +186,45 @@ class SessionServer <gensim.utils.SaveLoad> {
     -buffer (*args, **kwargs)
 }
 
-SessionServer -r-> SimServer
-SimServer -r-> SimIndex
+class TfidfModel as "gensim.models.TfidfModel" {
+    +__init__(corpus=None, id2word=None, 
+        \t dictionary=None, wlocal=utils.identity, 
+        \t wglobal=df2idf, normalize=True)
+    --
+    +initialize(corpus)
+    --
+    +__str__()
+    +__getitem(bow, eps=1e-12)
+}
+
+class LsiModel as "gensim.models.LsiModel" {
+    +__init__(corpus=None, num_topics=200, 
+        \t id2word=None, chunksize=20000,
+        \t decay=1.0, distributed=False, onepass=True,
+        \t power_iters=P2_EXTRA_ITERS, 
+        \t extra_samples=P2_EXTRA_DIMS)
+    +add_documents(corpus, chunksize=None, decay=None)
+    +show_topic(topicno, topn=10)
+    +show_topics(num_topics=-1, num_words=10, 
+        \t log=False, formatted=True)
+    +print_topic(topicno, topn=10)
+    +print_topics(num_topics=5, num_words=10)
+    +print_debug(num_topics=5, num_words=10)
+    +save(fname, *args, **kwargs)
+    +{static} load(fname, *args, **kwargs)
+    --
+    #__str__()
+    #__getitem__(bow, scaled=Flase, chunksize=512)
+}
+
+SessionServer --r-> SimServer
+SimServer --r-> SimIndex
 SimServer -d-> SimModel
+SimModel -r-> Dictionary
+SimModel -d-> TfidfModel
+SimModel -l-> LsiModel
+'SimModel -l-> LdaModel
+'SimModel -l-> LogEntropyModel
 
 'SimIndex -u-|> gensim.utils.SaveLoad
 'SimModel -r-|> gensim.utils.SaveLoad
